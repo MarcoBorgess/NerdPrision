@@ -226,6 +226,95 @@ td.brainrots-needed {
 }
 .info-icon:hover::after { display: block; }
 
+/* ── Burger button (no gap on right side of nav) ── */
+.burguer-btn { margin-left: 12px; }
+
+/* ── Modal ── */
+.hidden { display: none !important; }
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-box {
+  background: #16161e;
+  border: 1px solid #2a2a3a;
+  border-radius: 14px;
+  padding: 24px 28px;
+  width: 420px;
+  max-width: calc(100vw - 32px);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.modal-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 1.1rem;
+  cursor: pointer;
+  line-height: 1;
+}
+.modal-close:hover { color: #e0e0e0; }
+
+.modal-body-text { font-size: 0.9rem; color: #aaa; }
+
+.copy-block {
+  display: flex;
+  align-items: center;
+  background: #0f0f13;
+  border: 1px solid #2a2a3a;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.copy-block code {
+  flex: 1;
+  padding: 10px 14px;
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 0.85rem;
+  color: #2ecc71;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.copy-btn {
+  background: #1e1e2e;
+  border: none;
+  border-left: 1px solid #2a2a3a;
+  color: #666;
+  font-size: 1rem;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+  flex-shrink: 0;
+}
+.copy-btn:hover { color: #e0e0e0; background: #2a2a3a; }
+.copy-btn.copied { color: #2ecc71; }
+
+.modal-footer {
+  font-size: 0.78rem;
+  color: #555;
+  text-align: center;
+}
+
 /* ── Unknown brainrot row ── */
 .unknown { opacity: 0.4; font-style: italic; }
 .mob-unknown {

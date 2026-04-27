@@ -21,6 +21,9 @@
       <img src="assets/items/netherite_sword.png" alt="" class="mc-icon">
       <span>Porretes</span>
     </button>
+    <button class="nav-btn burguer-btn" id="tip-btn">
+      <img src="assets/burguer.webp" alt="" class="mc-icon">
+    </button>
   </nav>
 
   <div class="content">
@@ -43,6 +46,26 @@
       <div id="porretes-table-wrap"></div>
     </section>
 
+  </div>
+
+  <!-- Tip modal -->
+  <div class="modal-overlay hidden" id="tip-modal">
+    <div class="modal-box">
+      <div class="modal-title">
+        <span>Gostou do site?</span>
+        <button class="modal-close" id="tip-close">✕</button>
+      </div>
+      <p class="modal-body-text">Me envie uma gorjeta!</p>
+      <div class="copy-block">
+        <code>/money pay parmegio </code>
+        <button class="copy-btn" data-copy="/money pay parmegio ">⧉</button>
+      </div>
+      <div class="copy-block">
+        <code>/tokens pay parmegio </code>
+        <button class="copy-btn" data-copy="/tokens pay parmegio ">⧉</button>
+      </div>
+      <p class="modal-footer">Me mande sugestões no discord! @maarco</p>
+    </div>
   </div>
 
   <script src="main.js"></script>
