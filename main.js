@@ -115,7 +115,7 @@ function renderBrainrotTable(wrapperId, data, state, currency) {
 
   const sorted = sortBrainrots(data, state.col, state.asc);
 
-  let html = `<div class="brainrots-card"><table class="brainrot-table">${SHARED_COLS}<thead><tr>`;
+  let html = `<div class="brainrots-card"><div class="table-scroll"><table class="brainrot-table">${SHARED_COLS}<thead><tr>`;
   for (const c of cols) {
     const active = state.col === c.key;
     const arrow  = active ? `<span class="sort-arrow">${state.asc ? '↑' : '↓'}</span>` : '';
@@ -138,7 +138,7 @@ function renderBrainrotTable(wrapperId, data, state, currency) {
     </tr>`;
   }
 
-  html += '</tbody></table></div>';
+  html += '</tbody></table></div></div>';
   wrap.innerHTML = html;
 
   wrap.querySelectorAll('th.sortable').forEach(th => {
@@ -166,7 +166,7 @@ function renderRebirths(data) {
   const wrap = document.getElementById('rebirths-table-wrap');
   let cumulative = 0;
 
-  let html = `<div class="brainrots-card"><table><thead><tr>
+  let html = `<div class="brainrots-card"><div class="table-scroll"><table class="rebirths-table"><thead><tr>
     <th>Nível</th>
     <th class="num">Tokens Multi.</th>
     <th class="num">Coins Multi.</th>
@@ -192,14 +192,14 @@ function renderRebirths(data) {
     </tr>`;
   }
 
-  html += '</tbody></table></div>';
+  html += '</tbody></table></div></div>';
   wrap.innerHTML = html;
 }
 
 function renderPorretes(data) {
   const wrap = document.getElementById('porretes-table-wrap');
 
-  let html = `<div class="brainrots-card"><table><thead><tr>
+  let html = `<div class="brainrots-card"><div class="table-scroll"><table class="porretes-table"><thead><tr>
     <th>Item</th>
     <th>Mob ♥ HP ⚔ Hits</th>
     <th class="num">Dano</th>
@@ -217,7 +217,7 @@ function renderPorretes(data) {
     </tr>`;
   }
 
-  html += '</tbody></table></div>';
+  html += '</tbody></table></div></div>';
   wrap.innerHTML = html;
 }
 

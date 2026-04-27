@@ -314,6 +314,34 @@ td.brainrots-needed {
   text-align: center;
 }
 
+/* ── Mobile: horizontal scroll ── */
+@media (max-width: 768px) {
+  .content { padding: 16px 12px 0; }
+
+  .table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: #2a2a3a transparent;
+  }
+  .table-scroll::-webkit-scrollbar { height: 4px; }
+  .table-scroll::-webkit-scrollbar-track { background: transparent; }
+  .table-scroll::-webkit-scrollbar-thumb { background: #2a2a3a; border-radius: 2px; }
+
+  /* sticky breaks inside overflow-x:auto containers */
+  thead th { position: static; }
+
+  .brainrot-table  { min-width: 480px; }
+  .rebirths-table  { min-width: 680px; }
+  .porretes-table  { min-width: 420px; }
+}
+
+/* ── Very small screens: hide nav labels, show icons only ── */
+@media (max-width: 440px) {
+  .nav-btn span { display: none; }
+  .nav-btn { padding: 8px 10px; }
+}
+
 /* ── Unknown brainrot row ── */
 .unknown { opacity: 0.4; font-style: italic; }
 .mob-unknown {
