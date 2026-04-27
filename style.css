@@ -331,7 +331,13 @@ td.brainrots-needed {
   /* sticky breaks inside overflow-x:auto containers */
   thead th { position: static; }
 
-  .brainrot-table  { min-width: 480px; }
+  /* auto layout lets columns size to content (pills, values) instead of fixed %) */
+  .brainrot-table  { table-layout: auto; min-width: 520px; }
+  .brainrot-table .col-name   { width: auto; min-width: 140px; }
+  .brainrot-table .col-rarity { width: auto; min-width: 90px; }
+  .brainrot-table .col-vps    { width: auto; min-width: 70px; }
+  .brainrot-table .col-buy    { width: auto; min-width: 70px; }
+  .brainrot-table .col-be     { width: auto; min-width: 110px; }
   .rebirths-table  { min-width: 680px; }
   .porretes-table  { min-width: 420px; }
 }
