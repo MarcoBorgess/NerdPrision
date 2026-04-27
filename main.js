@@ -226,6 +226,7 @@ function switchView(view) {
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('view-' + view).classList.add('active');
   document.querySelector(`.nav-btn[data-view="${view}"]`).classList.add('active');
+  window.scrollTo(0, 0);
 }
 
 async function init() {
