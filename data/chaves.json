@@ -10,6 +10,18 @@
         "qty": "1"
       },
       {
+        "name": "Key Mãe",
+        "icon": "pink_petals",
+        "odd": 0.05,
+        "qty": "1"
+      },
+      {
+        "name": "Key Netuno",
+        "icon": "glow_ink_sac",
+        "odd": 0.07,
+        "qty": "2"
+      },
+      {
         "name": "Tridente Místico",
         "icon": "trident",
         "odd": 0.7,
@@ -698,6 +710,90 @@
         "icon": "horn_coral",
         "odd": 60.0,
         "qty": "200QQ"
+      }
+    ]
+  },
+  {
+    "name": "Key Mãe",
+    "icon": "pink_petals",
+    "items": [
+      {
+        "name": "Skin Floral",
+        "icon": "netherite_pickaxe",
+        "odd": 0.05,
+        "qty": "1"
+      },
+      {
+        "name": "Vara de Pesca x5",
+        "icon": "fishing_rod",
+        "odd": 1.0,
+        "qty": "1"
+      },
+      {
+        "name": "Tridente Supremo",
+        "icon": "trident",
+        "odd": 4.0,
+        "qty": "10"
+      },
+      {
+        "name": "Bastão LvL 12",
+        "icon": "mace",
+        "odd": 5.0,
+        "qty": "1"
+      },
+      {
+        "name": "8.5B Rubi",
+        "icon": "redstone",
+        "odd": 5.5,
+        "qty": "8.5B"
+      },
+      {
+        "name": "7S Tokens",
+        "icon": "horn_coral",
+        "odd": 6.0,
+        "qty": "7S"
+      },
+      {
+        "name": "Key Mãe",
+        "icon": "pink_petals",
+        "odd": 7.0,
+        "qty": "2"
+      },
+      {
+        "name": "Pá de Ferro",
+        "icon": "iron_shovel",
+        "odd": 10.0,
+        "qty": "1"
+      },
+      {
+        "name": "Booster de Armadura 12x 15min",
+        "icon": "water_bottle",
+        "odd": 15.0,
+        "qty": "1"
+      },
+      {
+        "name": "Booster de Rubis 3x 15min",
+        "icon": "cactus_flower",
+        "odd": 25.0,
+        "qty": "1"
+      },
+      {
+        "name": "Booster de Tokens 3.5x 10min",
+        "icon": "trial_key",
+        "odd": 30.0,
+        "qty": "1"
+      },
+      {
+        "name": "Booster de Coins 4x 10min",
+        "icon": "sunflower",
+        "odd": 40.0,
+        "qty": "1"
+      },
+      {
+        "name": "3S Tokens",
+        "icon": "horn_coral",
+        "odd": 60.0,
+        "qty": "3S"
       }
     ]
   }
