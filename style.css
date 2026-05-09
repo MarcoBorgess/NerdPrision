@@ -142,7 +142,8 @@ tbody tr:hover td { background: #1a1a26; }
 /* ── Value colors ── */
 .coin-val  { color: #3a9bd5; }
 .token-val { color: #f0c040; }
-.rubi-val  { color: #FF5555; }
+.rubi-val       { color: #FF5555; }
+.rubi-event-val { color: #CC3333; }
 .green-val      { color: #2ecc71; }
 .dark-green-val { color: #1a8a4a; }
 .muted-val { color: #aaa; }
@@ -223,7 +224,8 @@ td.brainrots-needed {
   padding: 6px 10px;
   font-size: 0.75rem;
   color: #aaa;
-  white-space: nowrap;
+  white-space: pre-line;
+  max-width: 240px;
   z-index: 1000;
   pointer-events: none;
   font-style: normal;
@@ -361,7 +363,7 @@ td.brainrots-needed {
 
 /* ── Value colors (used in Meus Brainrots) ── */
 .val-afk   { color: #2ecc71; }
-.val-event { color: #1abc9c; }
+.val-event { color: #1a7a40; }
 
 /* ── Edit button (config / pencil) ── */
 .edit-btn {
@@ -443,6 +445,9 @@ header.mb-header {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .mb-multi-hint {
@@ -508,8 +513,9 @@ header.mb-header {
   font-size: 0.9rem;
 }
 .mb-gen-row:last-child { border-bottom: none; }
-.mb-gen-row span { color: #666; }
+.mb-gen-row > span { color: #666; }
 .mb-gen-row strong { font-size: 1rem; font-weight: 700; }
+.mb-gen-vals { display: flex; align-items: center; gap: 6px; }
 
 /* ── Meus Brainrots table ── */
 .mb-table { min-width: 980px; }

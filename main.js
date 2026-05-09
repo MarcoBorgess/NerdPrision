@@ -273,15 +273,22 @@ function _mbTotals() {
   const vip = _mbVip(), bst = _mbBooster(), evt = _mbEvent(), cm = _mbCoinsMulti();
   const map = Object.fromEntries(_mbBrainrots.map(b => [b.name, b]));
   let afk = 0, world = 0, event = 0;
+  let rubiAfk = 0, rubiWorld = 0, rubiEvent = 0;
   for (const e of _mbLoadout) {
     const b = map[e.name];
-    if (!b || b.currency === 'rubi') continue;
+    if (!b) continue;
     const cps = b.valuePerSec || 0;
-    afk   += cps * cm * vip.bonus * vip.afkDebuff * e.qty;
-    world += cps * cm * vip.bonus * bst * e.qty;
-    event += cps * cm * vip.bonus * bst * evt * e.qty;
+    if (b.currency === 'rubi') {
+      rubiAfk   += cps * cm * vip.bonus * vip.afkDebuff * e.qty;
+      rubiWorld += cps * cm * vip.bonus * bst * e.qty;
+      rubiEvent += cps * cm * vip.bonus * bst * evt * e.qty;
+    } else {
+      afk   += cps * cm * vip.bonus * vip.afkDebuff * e.qty;
+      world += cps * cm * vip.bonus * bst * e.qty;
+      event += cps * cm * vip.bonus * bst * evt * e.qty;
+    }
   }
-  return { afk, world, event };
+  return { afk, world, event, rubiAfk, rubiWorld, rubiEvent };
 }
 
 function mbRenderCards() {
@@ -290,7 +297,7 @@ function mbRenderCards() {
   const level = _mbLevel;
   const cur  = _mbRebirth();
   const next = _mbRebirths.find(r => r.level === level + 1) || null;
-  const { afk, world, event } = _mbTotals();
+  const { afk, world, event, rubiAfk, rubiWorld, rubiEvent } = _mbTotals();
 
   // Card 1: current rebirth
   const multiHtml = cur
@@ -322,30 +329,30 @@ function mbRenderCards() {
     </div>
     ${card2}
     <div class="mb-card">
-      <div class="mb-card-title">AFK <span class="mb-multi-hint">· ${vip.label}</span></div>
+      <div class="mb-card-title"><span>AFK <span class="mb-multi-hint">· ${vip.label}</span></span><span class="info-icon" style="margin-left:0" data-tip="Coins/s × Rebirth × VIP bônus × AFK debuff\n\nRebirth: ${_mbCoinsMulti()}x\nVIP bônus: +${Math.round((vip.bonus - 1) * 100)}%\nAFK debuff: -${Math.round((1 - vip.afkDebuff) * 100)}%">i</span></div>
       <div class="mb-gen-rows">
-        <div class="mb-gen-row"><span>/ s</span><strong class="val-afk">${fmt2(afk)}</strong></div>
-        <div class="mb-gen-row"><span>/ m</span><strong class="val-afk">${fmt2(afk * 60)}</strong></div>
-        <div class="mb-gen-row"><span>/ h</span><strong class="val-afk">${fmt2(afk * 3600)}</strong></div>
-        <div class="mb-gen-row"><span>/ d</span><strong class="val-afk">${fmt2(afk * 86400)}</strong></div>
+        <div class="mb-gen-row"><span>/ s</span><div class="mb-gen-vals"><strong class="val-afk">${fmt2(afk)}</strong>${rubiAfk > 0 ? `<span class="muted-val">/</span><strong class="rubi-val">${fmt2(rubiAfk)}</strong>` : ''}</div></div>
+        <div class="mb-gen-row"><span>/ m</span><div class="mb-gen-vals"><strong class="val-afk">${fmt2(afk * 60)}</strong>${rubiAfk > 0 ? `<span class="muted-val">/</span><strong class="rubi-val">${fmt2(rubiAfk * 60)}</strong>` : ''}</div></div>
+        <div class="mb-gen-row"><span>/ h</span><div class="mb-gen-vals"><strong class="val-afk">${fmt2(afk * 3600)}</strong>${rubiAfk > 0 ? `<span class="muted-val">/</span><strong class="rubi-val">${fmt2(rubiAfk * 3600)}</strong>` : ''}</div></div>
+        <div class="mb-gen-row"><span>/ d</span><div class="mb-gen-vals"><strong class="val-afk">${fmt2(afk * 86400)}</strong>${rubiAfk > 0 ? `<span class="muted-val">/</span><strong class="rubi-val">${fmt2(rubiAfk * 86400)}</strong>` : ''}</div></div>
       </div>
     </div>
     <div class="mb-card">
-      <div class="mb-card-title">Mundo <span class="mb-multi-hint">· ${bst}x</span></div>
+      <div class="mb-card-title"><span>Mundo <span class="mb-multi-hint">· ${bst}x</span></span><span class="info-icon" style="margin-left:0" data-tip="Coins/s × Rebirth × VIP bônus × Booster\n\nRebirth: ${_mbCoinsMulti()}x\nVIP bônus: +${Math.round((vip.bonus - 1) * 100)}%\nBooster: ${bst}x">i</span></div>
       <div class="mb-gen-rows">
-        <div class="mb-gen-row"><span>/ s</span><strong class="val-afk">${fmt2(world)}</strong></div>
-        <div class="mb-gen-row"><span>/ m</span><strong class="val-afk">${fmt2(world * 60)}</strong></div>
-        <div class="mb-gen-row"><span>/ h</span><strong class="val-afk">${fmt2(world * 3600)}</strong></div>
-        <div class="mb-gen-row"><span>/ d</span><strong class="val-afk">${fmt2(world * 86400)}</strong></div>
+        <div class="mb-gen-row"><span>/ s</span><div class="mb-gen-vals"><strong class="val-afk">${fmt2(world)}</strong>${rubiWorld > 0 ? `<span class="muted-val">/</span><strong class="rubi-val">${fmt2(rubiWorld)}</strong>` : ''}</div></div>
+        <div class="mb-gen-row"><span>/ m</span><div class="mb-gen-vals"><strong class="val-afk">${fmt2(world * 60)}</strong>${rubiWorld > 0 ? `<span class="muted-val">/</span><strong class="rubi-val">${fmt2(rubiWorld * 60)}</strong>` : ''}</div></div>
+        <div class="mb-gen-row"><span>/ h</span><div class="mb-gen-vals"><strong class="val-afk">${fmt2(world * 3600)}</strong>${rubiWorld > 0 ? `<span class="muted-val">/</span><strong class="rubi-val">${fmt2(rubiWorld * 3600)}</strong>` : ''}</div></div>
+        <div class="mb-gen-row"><span>/ d</span><div class="mb-gen-vals"><strong class="val-afk">${fmt2(world * 86400)}</strong>${rubiWorld > 0 ? `<span class="muted-val">/</span><strong class="rubi-val">${fmt2(rubiWorld * 86400)}</strong>` : ''}</div></div>
       </div>
     </div>
     <div class="mb-card">
-      <div class="mb-card-title">Evento <span class="mb-multi-hint">· ${bst}x · ${evt}x</span></div>
+      <div class="mb-card-title"><span>Evento <span class="mb-multi-hint">· ${bst}x · ${evt}x</span></span><span class="info-icon" style="margin-left:0" data-tip="Coins/s × Rebirth × VIP bônus × Booster × Multi Evento\n\nRebirth: ${_mbCoinsMulti()}x\nVIP bônus: +${Math.round((vip.bonus - 1) * 100)}%\nBooster: ${bst}x\nMulti Evento: ${evt}x">i</span></div>
       <div class="mb-gen-rows">
-        <div class="mb-gen-row"><span>/ s</span><strong class="val-event">${fmt2(event)}</strong></div>
-        <div class="mb-gen-row"><span>/ m</span><strong class="val-event">${fmt2(event * 60)}</strong></div>
-        <div class="mb-gen-row"><span>/ h</span><strong class="val-event">${fmt2(event * 3600)}</strong></div>
-        <div class="mb-gen-row"><span>/ d</span><strong class="val-event">${fmt2(event * 86400)}</strong></div>
+        <div class="mb-gen-row"><span>/ s</span><div class="mb-gen-vals"><strong class="val-afk">${fmt2(event)}</strong>${rubiEvent > 0 ? `<span class="muted-val">/</span><strong class="rubi-val">${fmt2(rubiEvent)}</strong>` : ''}</div></div>
+        <div class="mb-gen-row"><span>/ m</span><div class="mb-gen-vals"><strong class="val-afk">${fmt2(event * 60)}</strong>${rubiEvent > 0 ? `<span class="muted-val">/</span><strong class="rubi-val">${fmt2(rubiEvent * 60)}</strong>` : ''}</div></div>
+        <div class="mb-gen-row"><span>/ h</span><div class="mb-gen-vals"><strong class="val-afk">${fmt2(event * 3600)}</strong>${rubiEvent > 0 ? `<span class="muted-val">/</span><strong class="rubi-val">${fmt2(rubiEvent * 3600)}</strong>` : ''}</div></div>
+        <div class="mb-gen-row"><span>/ d</span><div class="mb-gen-vals"><strong class="val-afk">${fmt2(event * 86400)}</strong>${rubiEvent > 0 ? `<span class="muted-val">/</span><strong class="rubi-val">${fmt2(rubiEvent * 86400)}</strong>` : ''}</div></div>
       </div>
     </div>`;
 
@@ -353,11 +360,13 @@ function mbRenderCards() {
     _mbLevel = Math.max(0, _mbLevel - 1);
     mbSave(MB_LS.REBIRTH, _mbLevel);
     mbRenderCards();
+    mbRenderTable();
   });
   document.getElementById('mb-inc').addEventListener('click', () => {
     _mbLevel = Math.min(20, _mbLevel + 1);
     mbSave(MB_LS.REBIRTH, _mbLevel);
     mbRenderCards();
+    mbRenderTable();
   });
 }
 
@@ -379,12 +388,16 @@ function mbRenderTable() {
   for (const e of sorted) {
     const b = map[e.name];
     if (!b) continue;
-    const cps   = b.valuePerSec || 0;
-    const qty   = e.qty;
-    const afkPs = cps * cm * vip.bonus * vip.afkDebuff * qty;
-    const evtPs = cps * cm * vip.bonus * bst * evt * qty;
-    const color = RARITY_COLORS[b.rarity] || '#e0e0e0';
-    const idx   = _mbLoadout.indexOf(e);
+    const cps    = b.valuePerSec || 0;
+    const qty    = e.qty;
+    const isRubi = b.currency === 'rubi';
+    const afkPs  = cps * cm * vip.bonus * vip.afkDebuff * qty;
+    const evtPs  = cps * cm * vip.bonus * bst * evt * qty;
+    const color  = RARITY_COLORS[b.rarity] || '#e0e0e0';
+    const idx    = _mbLoadout.indexOf(e);
+    const cstCls = isRubi ? 'rubi-val' : 'green-val';
+    const afkCls = isRubi ? 'rubi-val' : 'val-afk';
+    const evtCls = isRubi ? 'rubi-event-val' : 'val-event';
     html += `<tr data-idx="${idx}">
       <td><div class="td-name-flex">${mobFace(b.icon)}<span class="brainrot-name" style="color:${color};font-weight:700">${b.name}</span></div></td>
       <td class="num qty-cell">
@@ -394,15 +407,15 @@ function mbRenderTable() {
           <button class="qty-confirm">✓</button>
         </span>
       </td>
-      <td class="num green-val">${fmt2(b.buyValue * qty)}</td>
-      <td class="num val-afk">${fmt2(afkPs)}</td>
-      <td class="num val-event">${fmt2(evtPs)}</td>
-      <td class="num val-afk">${fmt2(afkPs * 60)}</td>
-      <td class="num val-event">${fmt2(evtPs * 60)}</td>
-      <td class="num val-afk">${fmt2(afkPs * 3600)}</td>
-      <td class="num val-event">${fmt2(evtPs * 3600)}</td>
-      <td class="num val-afk">${fmt2(afkPs * 86400)}</td>
-      <td class="num val-event">${fmt2(evtPs * 86400)}</td>
+      <td class="num ${cstCls}">${fmt2(b.buyValue * qty)}</td>
+      <td class="num ${afkCls}">${fmt2(afkPs)}</td>
+      <td class="num ${evtCls}">${fmt2(evtPs)}</td>
+      <td class="num ${afkCls}">${fmt2(afkPs * 60)}</td>
+      <td class="num ${evtCls}">${fmt2(evtPs * 60)}</td>
+      <td class="num ${afkCls}">${fmt2(afkPs * 3600)}</td>
+      <td class="num ${evtCls}">${fmt2(evtPs * 3600)}</td>
+      <td class="num ${afkCls}">${fmt2(afkPs * 86400)}</td>
+      <td class="num ${evtCls}">${fmt2(evtPs * 86400)}</td>
       <td><button class="btn-remove">×</button></td>
     </tr>`;
   }
@@ -460,16 +473,20 @@ function mbRenderTable() {
 function mbRenderAddSelect() {
   const sel = document.getElementById('mb-add-select');
   const coins = _mbBrainrots.filter(b => b.currency !== 'rubi');
+  const rubis = _mbBrainrots.filter(b => b.currency === 'rubi');
   const rarities = ['Mítico', 'Lendário', 'Raro', 'Incomum', 'Comum'];
-  sel.innerHTML = rarities.map(rarity => {
-    const group = coins
+
+  const makeGroups = (list, prefix) => rarities.map(rarity => {
+    const group = list
       .filter(b => b.rarity === rarity)
       .sort((a, b) => (b.valuePerSec || 0) - (a.valuePerSec || 0));
     if (group.length === 0) return '';
-    return `<optgroup label="${rarity}">${
+    return `<optgroup label="${prefix}${rarity}">${
       group.map(b => `<option value="${b.name}">${b.name} (${b.mob})</option>`).join('')
     }</optgroup>`;
   }).join('');
+
+  sel.innerHTML = makeGroups(coins, '') + makeGroups(rubis, 'Rubi — ');
 }
 
 function initMeusbrainrots(brainrots, rebirths) {
