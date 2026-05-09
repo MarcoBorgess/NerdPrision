@@ -145,20 +145,20 @@
   },
   {
     "level": 17,
-    "name": "???",
-    "icon": "barrier",
+    "name": "Foice do Submundo",
+    "icon": "iron_hoe",
     "mob": "???",
     "hp": 0,
-    "damage": 0,
+    "damage": 260,
     "level1Equivalents": 43046721
   },
   {
     "level": 18,
-    "name": "???",
-    "icon": "barrier",
+    "name": "Demolidora do Colosso Sombrio",
+    "icon": "netherite_pickaxe",
     "mob": "???",
     "hp": 0,
-    "damage": 0,
+    "damage": 310,
     "level1Equivalents": 129140163
   }
 ]

@@ -169,34 +169,35 @@
   },
   {
     "level": 22,
-    "coinsMultiplier": 0,
-    "tokensMultiplier": 0,
-    "cost": 0,
-    "neededBrainrots": "Se souber me envia no discord @maarco ou @parme no servidor do nerd.",
-    "costOfNeededBrainrots": 0
+    "coinsMultiplier": 8.0,
+    "tokensMultiplier": 5.6,
+    "cost": 280000000000000,
+    "neededBrainrots": "3x Fantasma do Vazio Zé Trevas (Fantasma)\n2x Revenant do Vazio Sombrio (Esqueleto Wither)\n1x Predador do Abismo Profundo (Invocador)",
+    "costOfNeededBrainrots": 84000000000000
   },
   {
     "level": 23,
-    "coinsMultiplier": 0,
-    "tokensMultiplier": 0,
-    "cost": 0,
-    "neededBrainrots": "Se souber me envia no discord @maarco ou @parme no servidor do nerd.",
-    "costOfNeededBrainrots": 0
+    "coinsMultiplier": 8.9,
+    "tokensMultiplier": 6.2,
+    "cost": 450000000000000,
+    "neededBrainrots": "3x Revenant do Vazio Sombrio (Esqueleto Wither)\n2x Predador do Abismo Profundo (Invocador)\n1x Colosso do Vazio Ancestral (Cubo de Magma)",
+    "costOfNeededBrainrots": 165000000000000
   },
   {
     "level": 24,
-    "coinsMultiplier": 0,
-    "tokensMultiplier": 0,
-    "cost": 0,
-    "neededBrainrots": "Se souber me envia no discord @maarco ou @parme no servidor do nerd.",
-    "costOfNeededBrainrots": 0
+    "coinsMultiplier": 10,
+    "tokensMultiplier": 7,
+    "cost": 700000000000000,
+    "neededBrainrots": "3x Predador do Abismo Profundo (Invocador)\n2x Colosso do Vazio Ancestral (Cubo de Magma)\n1x Wither Overlord do Apocalipse (Wither)",
+    "costOfNeededBrainrots": 310000000000000
   },
   {
     "level": 25,
-    "coinsMultiplier": 0,
-    "tokensMultiplier": 0,
-    "cost": 0,
-    "neededBrainrots": "Se souber me envia no discord @maarco ou @parme no servidor do nerd.",
-    "costOfNeededBrainrots": 0
+    "coinsMultiplier": 12,
+    "tokensMultiplier": 8.5,
+    "cost": 1200000000000000,
+    "neededBrainrots": "3x Colosso do Vazio Ancestral (Cubo de Magma)\n2x Wither Overlord do Apocalipse (Wither)\n1x Shulker do Vazio Infinito (Shulker)",
+    "costOfNeededBrainrots": 480000000000000,
+    "costOfNeededBrainrotsRubi": 30000000000
   }
 ]
