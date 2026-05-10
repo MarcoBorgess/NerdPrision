@@ -147,8 +147,8 @@
     "level": 17,
     "name": "Foice do Submundo",
     "icon": "iron_hoe",
-    "mob": "???",
-    "hp": 0,
+    "mob": "Ceifador do Abismo",
+    "hp": 2200,
     "damage": 260,
     "level1Equivalents": 43046721
   },
