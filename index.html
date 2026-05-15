@@ -21,11 +21,17 @@
       <img src="assets/items/netherite_sword.png" alt="" class="mc-icon">
       <span>Porretes</span>
     </button>
-    <button class="nav-btn burger-btn" data-view="meus-brainrots">
+    <button class="nav-btn" data-view="meus-brainrots">
       <img src="assets/computer.webp" alt="" class="mc-icon">
+      <span>Meus Brainrots</span>
     </button>
     <button class="nav-btn" data-view="chaves">
       <img src="assets/vault.webp" alt="" class="mc-icon">
+      <span>Chaves/Tridentes</span>
+    </button>
+    <button class="nav-btn" data-view="pesca">
+      <img src="assets/fish.webp" alt="" class="mc-icon">
+      <span>Pesca</span>
     </button>
     <button class="nav-btn" id="tip-btn">
       <img src="assets/burger.webp" alt="" class="mc-icon">
@@ -143,6 +149,47 @@
           </table>
         </div>
       </div>
+    </section>
+
+    <section id="view-pesca" class="view">
+      <header class="pesca-header">
+        <h1>Pesca</h1>
+        <p class="subtitle">Base: 15 peixes/30s</p>
+      </header>
+      <div class="brainrots-card">
+        <div class="table-scroll">
+          <table class="pesca-table">
+            <thead>
+              <tr>
+                <th>Conta</th>
+                <th>Vara</th>
+                <th>Status</th>
+                <th class="num">Peixes/h</th>
+                <th class="num">Tokens/h</th>
+                <th class="num">Peixes/8h</th>
+                <th class="num">Tokens/8h</th>
+                <th class="num">Peixes/dia</th>
+                <th class="num">Tokens/dia</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="pesca-tbody"></tbody>
+            <tfoot id="pesca-tfoot"></tfoot>
+          </table>
+        </div>
+      </div>
+      <div class="pesca-add-row">
+        <div class="pesca-add-left">
+          <input type="text" id="pesca-add-input" class="pesca-add-input" placeholder="Nome da Conta">
+          <button class="btn-save-rank" id="pesca-add-btn">Adicionar</button>
+        </div>
+        <div class="pesca-calc">
+          <input type="number" id="pesca-calc-fish" class="pesca-calc-fish-input" min="0" placeholder="0">
+          <span class="pesca-calc-label">peixes = <span id="pesca-calc-tokens" class="pesca-calc-tokens-val">0</span> Tokens</span>
+        </div>
+      </div>
+      <h2>Loja</h2>
+      <div class="pesca-shop-grid" id="pesca-shop-grid"></div>
     </section>
 
   </div>

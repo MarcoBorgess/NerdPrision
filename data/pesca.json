@@ -1,0 +1,5 @@
+[
+  { "name": "1QQ Tokens",     "icon": "horn_coral", "quantity": 1000000000000000000, "cost": 6 },
+  { "name": "Key Pesca",      "icon": "blue_dye",   "quantity": 1,                   "cost": 1000 },
+  { "name": "Porrete Tier 4", "icon": "breeze_rod", "quantity": 1,                   "cost": 600 }
+]

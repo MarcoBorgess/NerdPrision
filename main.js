@@ -22,6 +22,10 @@ function fmtFull(n) {
 function fmt(n) {
   if (n == null || n === 0) return '0';
   const a = Math.abs(n);
+  if (a >= 1e27) return (n / 1e27).toFixed(1).replace(/\.0$/, '') + 'OC';
+  if (a >= 1e24) return (n / 1e24).toFixed(1).replace(/\.0$/, '') + 'SS';
+  if (a >= 1e21) return (n / 1e21).toFixed(1).replace(/\.0$/, '') + 'S';
+  if (a >= 1e18) return (n / 1e18).toFixed(1).replace(/\.0$/, '') + 'QQ';
   if (a >= 1e15) return (n / 1e15).toFixed(1).replace(/\.0$/, '') + 'Q';
   if (a >= 1e12) return (n / 1e12).toFixed(1).replace(/\.0$/, '') + 'T';
   if (a >= 1e9)  return (n / 1e9).toFixed(1).replace(/\.0$/, '')  + 'B';
@@ -33,6 +37,10 @@ function fmt(n) {
 function fmt2(n) {
   if (n == null || n === 0) return '0';
   const a = Math.abs(n);
+  if (a >= 1e27) return (n / 1e27).toFixed(2).replace(/\.00$/, '') + 'OC';
+  if (a >= 1e24) return (n / 1e24).toFixed(2).replace(/\.00$/, '') + 'SS';
+  if (a >= 1e21) return (n / 1e21).toFixed(2).replace(/\.00$/, '') + 'S';
+  if (a >= 1e18) return (n / 1e18).toFixed(2).replace(/\.00$/, '') + 'QQ';
   if (a >= 1e15) return (n / 1e15).toFixed(2).replace(/\.00$/, '') + 'Q';
   if (a >= 1e12) return (n / 1e12).toFixed(2).replace(/\.00$/, '') + 'T';
   if (a >= 1e9)  return (n / 1e9).toFixed(2).replace(/\.00$/, '')  + 'B';
@@ -991,12 +999,165 @@ function initChaves(chaves) {
   });
 }
 
+// ── Pesca ────────────────────────────────────────────────────────────────────
+
+const PESCA_BASE_FISH = 15; // peixes por 30s
+const PESCA_LS = 'pesca_accounts';
+
+let _pescaAccounts = [];
+let _pescaShop = [];
+let _pescaTokenPerFish = 0;
+
+function pescaLoad() {
+  try { const v = localStorage.getItem(PESCA_LS); return v ? JSON.parse(v) : []; } catch { return []; }
+}
+function pescaSave() { localStorage.setItem(PESCA_LS, JSON.stringify(_pescaAccounts)); }
+
+function pescaFishPerHour(vara)   { return (PESCA_BASE_FISH / 30) * vara * 3600; }
+function pescaTokensPerHour(vara) { return pescaFishPerHour(vara) * _pescaTokenPerFish; }
+
+function pescaRenderTable() {
+  const tbody = document.getElementById('pesca-tbody');
+  const tfoot = document.getElementById('pesca-tfoot');
+
+  const online  = _pescaAccounts.filter(a => a.online);
+  const offline = _pescaAccounts.filter(a => !a.online);
+  const ordered = [...online, ...offline];
+
+  if (ordered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;color:#555;padding:24px">Nenhuma conta adicionada</td></tr>`;
+    tfoot.innerHTML = '';
+    return;
+  }
+
+  let html = '';
+  for (const acc of ordered) {
+    const vara      = acc.vara;
+    const fh        = pescaFishPerHour(vara);
+    const th        = pescaTokensPerHour(vara);
+    const offCls    = acc.online ? '' : ' class="pesca-row-offline"';
+    const chipCls   = acc.online ? 'online' : 'offline';
+    const chipLabel = acc.online ? 'Online' : 'Offline';
+    const idx       = _pescaAccounts.indexOf(acc);
+
+    html += `<tr${offCls} data-idx="${idx}">
+      <td>${acc.name}</td>
+      <td class="pesca-vara-cell"><input type="number" class="pesca-vara-input" value="${vara.toFixed(1)}" min="0.1" step="0.1" data-idx="${idx}"><span class="pesca-vara-suffix">x</span></td>
+      <td><span class="pesca-status-chip ${chipCls}" data-idx="${idx}">${chipLabel}</span></td>
+      <td class="num pesca-fish-val">${fmt(fh)}</td>
+      <td class="num pesca-token-val">${fmt(th)}</td>
+      <td class="num pesca-fish-val">${fmt(fh * 8)}</td>
+      <td class="num pesca-token-val">${fmt(th * 8)}</td>
+      <td class="num pesca-fish-val">${fmt(fh * 24)}</td>
+      <td class="num pesca-token-val">${fmt(th * 24)}</td>
+      <td><button class="btn-remove pesca-remove" data-idx="${idx}">×</button></td>
+    </tr>`;
+  }
+  tbody.innerHTML = html;
+
+  const totalFh = online.reduce((s, a) => s + pescaFishPerHour(a.vara), 0);
+  const totalTh = online.reduce((s, a) => s + pescaTokensPerHour(a.vara), 0);
+  tfoot.innerHTML = online.length > 0 ? `<tr class="pesca-total-row">
+    <td colspan="3" style="color:#aaa;font-size:0.78rem;text-transform:uppercase;letter-spacing:0.04em">Total (online)</td>
+    <td class="num pesca-fish-val">${fmt(totalFh)}</td>
+    <td class="num pesca-token-val">${fmt(totalTh)}</td>
+    <td class="num pesca-fish-val">${fmt(totalFh * 8)}</td>
+    <td class="num pesca-token-val">${fmt(totalTh * 8)}</td>
+    <td class="num pesca-fish-val">${fmt(totalFh * 24)}</td>
+    <td class="num pesca-token-val">${fmt(totalTh * 24)}</td>
+    <td></td>
+  </tr>` : '';
+
+  tbody.querySelectorAll('.pesca-vara-input').forEach(inp => {
+    inp.addEventListener('change', () => {
+      const idx = parseInt(inp.dataset.idx);
+      const val = parseFloat(inp.value);
+      if (!isNaN(val) && val >= 0.1) {
+        _pescaAccounts[idx].vara = Math.round(val * 10) / 10;
+        pescaSave();
+        pescaRenderTable();
+      } else {
+        inp.value = _pescaAccounts[idx].vara.toFixed(1);
+      }
+    });
+  });
+
+  tbody.querySelectorAll('.pesca-status-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const idx = parseInt(chip.dataset.idx);
+      _pescaAccounts[idx].online = !_pescaAccounts[idx].online;
+      pescaSave();
+      pescaRenderTable();
+    });
+  });
+
+  tbody.querySelectorAll('.pesca-remove').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.dataset.idx);
+      _pescaAccounts.splice(idx, 1);
+      pescaSave();
+      pescaRenderTable();
+    });
+  });
+}
+
+function pescaRenderShop() {
+  const grid = document.getElementById('pesca-shop-grid');
+  let html = '';
+  for (const item of _pescaShop) {
+    const tokenEquiv = item.cost * _pescaTokenPerFish;
+    html += `<div class="pesca-shop-card">
+      <div class="pesca-shop-card-header">
+        ${mcImg(item.icon)}
+        <span>${item.name}</span>
+      </div>
+      <div class="pesca-shop-card-cost">
+        <span class="pesca-fish-val">${fmt(item.cost)}</span> peixes
+        = <span class="pesca-token-val">${fmt(tokenEquiv)}</span> Tokens
+      </div>
+    </div>`;
+  }
+  grid.innerHTML = html;
+}
+
+function initPesca(shop) {
+  _pescaShop = shop;
+  _pescaTokenPerFish = shop[0].quantity / shop[0].cost;
+  _pescaAccounts = pescaLoad();
+
+  pescaRenderTable();
+  pescaRenderShop();
+
+  const addInput = document.getElementById('pesca-add-input');
+  const addBtn   = document.getElementById('pesca-add-btn');
+
+  function addAccount() {
+    const name = addInput.value.trim();
+    if (!name) return;
+    _pescaAccounts.push({ name, vara: 1.0, online: true });
+    pescaSave();
+    pescaRenderTable();
+    addInput.value = '';
+  }
+
+  addBtn.addEventListener('click', addAccount);
+  addInput.addEventListener('keydown', e => { if (e.key === 'Enter') addAccount(); });
+
+  const calcFish   = document.getElementById('pesca-calc-fish');
+  const calcTokens = document.getElementById('pesca-calc-tokens');
+  calcFish.addEventListener('input', () => {
+    const fish = parseFloat(calcFish.value) || 0;
+    calcTokens.textContent = fmt(fish * _pescaTokenPerFish);
+  });
+}
+
 async function init() {
-  const [brainrots, rebirths, porretes, chaves] = await Promise.all([
+  const [brainrots, rebirths, porretes, chaves, pesca] = await Promise.all([
     fetch('data/brainrots.json').then(r => r.json()),
     fetch('data/rebirths.json').then(r => r.json()),
     fetch('data/porretes.json').then(r => r.json()),
     fetch('data/chaves.json').then(r => r.json()),
+    fetch('data/pesca.json').then(r => r.json()),
   ]);
 
   const coinBrainrots = brainrots.filter(b => b.currency !== 'rubi');
@@ -1008,6 +1169,7 @@ async function init() {
   renderPorretes(porretes);
   initMeusbrainrots(brainrots, rebirths);
   initChaves(chaves);
+  initPesca(pesca);
 
   document.querySelectorAll('.nav-btn[data-view]').forEach(btn => {
     btn.addEventListener('click', () => switchView(btn.dataset.view));
