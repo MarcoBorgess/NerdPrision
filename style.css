@@ -808,8 +808,8 @@ header.pesca-header { margin-bottom: 0; }
 
 .pesca-table { min-width: 860px; }
 
-.pesca-fish-val  { color: #55FFFF; }
-.pesca-token-val { color: #FFFF55; }
+.pesca-fish-val  { color: #3a9bd5; }
+.pesca-token-val { color: #f0c040; }
 
 .pesca-vara-cell { white-space: nowrap; }
 
@@ -818,19 +818,16 @@ header.pesca-header { margin-bottom: 0; }
   background: #1e1e2e;
   border: 1px solid #2a2a3a;
   border-radius: 4px;
-  color: #55FFFF;
+  color: #e0e0e0;
   padding: 4px 6px;
   font-size: 0.85rem;
   font-family: inherit;
   text-align: right;
+  -moz-appearance: textfield;
 }
 .pesca-vara-input:focus { outline: none; border-color: #555; }
-
-.pesca-vara-suffix {
-  color: #55FFFF;
-  font-size: 0.82rem;
-  margin-left: 2px;
-}
+.pesca-vara-input::-webkit-inner-spin-button,
+.pesca-vara-input::-webkit-outer-spin-button { -webkit-appearance: none; }
 
 .pesca-status-chip {
   display: inline-block;
@@ -902,16 +899,19 @@ tfoot .pesca-total-row td {
   background: transparent;
   border: none;
   border-bottom: 1px solid #2a2a3a;
-  color: #55FFFF;
+  color: #3a9bd5;
   padding: 2px 4px;
   font-size: 0.9rem;
   font-family: inherit;
   text-align: right;
+  -moz-appearance: textfield;
 }
-.pesca-calc-fish-input:focus { outline: none; border-bottom-color: #55FFFF; }
+.pesca-calc-fish-input:focus { outline: none; border-bottom-color: #3a9bd5; }
+.pesca-calc-fish-input::-webkit-inner-spin-button,
+.pesca-calc-fish-input::-webkit-outer-spin-button { -webkit-appearance: none; }
 
 .pesca-calc-label { font-size: 0.85rem; color: #888; white-space: nowrap; }
-.pesca-calc-tokens-val { color: #FFFF55; font-weight: 700; }
+.pesca-calc-tokens-val { color: #f0c040; font-weight: 700; }
 
 .pesca-shop-grid {
   display: grid;

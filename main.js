@@ -1042,14 +1042,14 @@ function pescaRenderTable() {
 
     html += `<tr${offCls} data-idx="${idx}">
       <td>${acc.name}</td>
-      <td class="pesca-vara-cell"><input type="number" class="pesca-vara-input" value="${vara.toFixed(1)}" min="0.1" step="0.1" data-idx="${idx}"><span class="pesca-vara-suffix">x</span></td>
+      <td class="pesca-vara-cell"><input type="text" inputmode="decimal" class="pesca-vara-input" value="${vara.toFixed(1)}" data-idx="${idx}"></td>
       <td><span class="pesca-status-chip ${chipCls}" data-idx="${idx}">${chipLabel}</span></td>
-      <td class="num pesca-fish-val">${fmt(fh)}</td>
-      <td class="num pesca-token-val">${fmt(th)}</td>
-      <td class="num pesca-fish-val">${fmt(fh * 8)}</td>
-      <td class="num pesca-token-val">${fmt(th * 8)}</td>
-      <td class="num pesca-fish-val">${fmt(fh * 24)}</td>
-      <td class="num pesca-token-val">${fmt(th * 24)}</td>
+      <td class="num pesca-fish-val">${fmt2(fh)}</td>
+      <td class="num pesca-token-val">${fmt2(th)}</td>
+      <td class="num pesca-fish-val">${fmt2(fh * 8)}</td>
+      <td class="num pesca-token-val">${fmt2(th * 8)}</td>
+      <td class="num pesca-fish-val">${fmt2(fh * 24)}</td>
+      <td class="num pesca-token-val">${fmt2(th * 24)}</td>
       <td><button class="btn-remove pesca-remove" data-idx="${idx}">×</button></td>
     </tr>`;
   }
@@ -1059,19 +1059,19 @@ function pescaRenderTable() {
   const totalTh = online.reduce((s, a) => s + pescaTokensPerHour(a.vara), 0);
   tfoot.innerHTML = online.length > 0 ? `<tr class="pesca-total-row">
     <td colspan="3" style="color:#aaa;font-size:0.78rem;text-transform:uppercase;letter-spacing:0.04em">Total (online)</td>
-    <td class="num pesca-fish-val">${fmt(totalFh)}</td>
-    <td class="num pesca-token-val">${fmt(totalTh)}</td>
-    <td class="num pesca-fish-val">${fmt(totalFh * 8)}</td>
-    <td class="num pesca-token-val">${fmt(totalTh * 8)}</td>
-    <td class="num pesca-fish-val">${fmt(totalFh * 24)}</td>
-    <td class="num pesca-token-val">${fmt(totalTh * 24)}</td>
+    <td class="num pesca-fish-val">${fmt2(totalFh)}</td>
+    <td class="num pesca-token-val">${fmt2(totalTh)}</td>
+    <td class="num pesca-fish-val">${fmt2(totalFh * 8)}</td>
+    <td class="num pesca-token-val">${fmt2(totalTh * 8)}</td>
+    <td class="num pesca-fish-val">${fmt2(totalFh * 24)}</td>
+    <td class="num pesca-token-val">${fmt2(totalTh * 24)}</td>
     <td></td>
   </tr>` : '';
 
   tbody.querySelectorAll('.pesca-vara-input').forEach(inp => {
     inp.addEventListener('change', () => {
       const idx = parseInt(inp.dataset.idx);
-      const val = parseFloat(inp.value);
+      const val = parseFloat(inp.value.replace(',', '.'));
       if (!isNaN(val) && val >= 0.1) {
         _pescaAccounts[idx].vara = Math.round(val * 10) / 10;
         pescaSave();
@@ -1112,8 +1112,8 @@ function pescaRenderShop() {
         <span>${item.name}</span>
       </div>
       <div class="pesca-shop-card-cost">
-        <span class="pesca-fish-val">${fmt(item.cost)}</span> peixes
-        = <span class="pesca-token-val">${fmt(tokenEquiv)}</span> Tokens
+        <span class="pesca-fish-val">${fmt2(item.cost)}</span> peixes
+        = <span class="pesca-token-val">${fmt2(tokenEquiv)}</span> Tokens
       </div>
     </div>`;
   }
@@ -1147,7 +1147,7 @@ function initPesca(shop) {
   const calcTokens = document.getElementById('pesca-calc-tokens');
   calcFish.addEventListener('input', () => {
     const fish = parseFloat(calcFish.value) || 0;
-    calcTokens.textContent = fmt(fish * _pescaTokenPerFish);
+    calcTokens.textContent = fmt2(fish * _pescaTokenPerFish);
   });
 }
 

@@ -1,5 +1,50 @@
 [
-  { "name": "1QQ Tokens",     "icon": "horn_coral", "quantity": 1000000000000000000, "cost": 6 },
-  { "name": "Key Pesca",      "icon": "blue_dye",   "quantity": 1,                   "cost": 1000 },
-  { "name": "Porrete Tier 4", "icon": "breeze_rod", "quantity": 1,                   "cost": 600 }
+  {
+    "name": "1QQ Tokens",
+    "icon": "horn_coral",
+    "quantity": 1000000000000000000,
+    "cost": 6
+  },
+  {
+    "name": "Key Pesca",
+    "icon": "blue_dye",
+    "quantity": 1,
+    "cost": 1000
+  },
+  {
+    "name": "Porrete Tier 4",
+    "icon": "breeze_rod",
+    "quantity": 1,
+    "cost": 600
+  },
+  {
+    "name": "Removedor de Skin",
+    "icon": "brush",
+    "quantity": 1,
+    "cost": 24000
+  },
+  {
+    "name": "Tridente Lendário",
+    "icon": "trident",
+    "quantity": 1,
+    "cost": 3600
+  },
+  {
+    "name": "Booster de Tokens 3.1x (30min)",
+    "icon": "trial_key",
+    "quantity": 1,
+    "cost": 57800
+  },
+  {
+    "name": "Booster de Coins 3.2x (30min)",
+    "icon": "sunflower",
+    "quantity": 1,
+    "cost": 75800
+  },
+  {
+    "name": "Booster de Armadura 3.0x (3min)",
+    "icon": "water_bottle",
+    "quantity": 1,
+    "cost": 14800
+  }
 ]
