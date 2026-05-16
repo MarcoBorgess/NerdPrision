@@ -223,29 +223,239 @@ function renderRebirths(data) {
   wrap.innerHTML = html;
 }
 
-function renderPorretes(data) {
+// ── Porretes ─────────────────────────────────────────────────────────────────
+
+let _porretesData = [];
+
+const PORRETES_LS = 'porretes_data';
+function prLoad() {
+  try { const v = localStorage.getItem(PORRETES_LS); return v ? JSON.parse(v) : { tokensBase: null, coinsBase: null, qty: {} }; } catch { return { tokensBase: null, coinsBase: null, qty: {} }; }
+}
+function prSave(d) { localStorage.setItem(PORRETES_LS, JSON.stringify(d)); }
+
+function prFindNextTarget(qty) {
+  let highest = 0;
+  for (const p of _porretesData) {
+    if ((qty[p.level] || 0) > 0 && p.level > highest) highest = p.level;
+  }
+  const nextLevel = Math.max(highest + 1, 2);
+  return _porretesData.find(p => p.level === nextLevel) || null;
+}
+
+function prCalcMissing(targetLevel, qty) {
+  const inv = {};
+  for (const p of _porretesData) inv[p.level] = qty[p.level] || 0;
+  const toAcquire = {};
+
+  // Recursively produce `count` items at `level`, using inv + buying what's missing.
+  // Buys at the lowest possible level that still has inventory (to use partial sets),
+  // then falls back to buying directly at `level` for what can't be chained.
+  function produce(level, count) {
+    if (count <= 0) return;
+
+    // Consume existing inventory first
+    const use = Math.min(inv[level] || 0, count);
+    inv[level] = (inv[level] || 0) - use;
+    let still = count - use;
+    if (!still) return;
+
+    if (level === 1) {
+      toAcquire[1] = (toAcquire[1] || 0) + still;
+      return;
+    }
+
+    // For each unit still needed, try to chain from lower inventory (one at a time)
+    let chained = 0;
+    for (let i = 0; i < still; i++) {
+      // Check if any lower level has inventory left
+      let hasBelow = false;
+      for (let l = level - 1; l >= 1; l--) {
+        if ((inv[l] || 0) > 0) { hasBelow = true; break; }
+      }
+      if (!hasBelow) break;
+      // Build 1 unit at `level` from 3 units at `level-1`
+      produce(level - 1, 3);
+      chained++;
+    }
+    still -= chained;
+
+    // Remaining units: buy directly at this level
+    if (still > 0) toAcquire[level] = (toAcquire[level] || 0) + still;
+  }
+
+  produce(targetLevel - 1, 3);
+  return toAcquire;
+}
+
+function renderPorretesCard() {
+  const el = document.getElementById('porretes-card-wrap');
+  if (!el) return;
+  const saved = prLoad();
+  const qty   = saved.qty || {};
+  const target = prFindNextTarget(qty);
+  if (!target) { el.innerHTML = ''; return; }
+  const missing = prCalcMissing(target.level, qty);
+  const entries = Object.entries(missing).filter(([, v]) => v > 0).sort(([a], [b]) => Number(b) - Number(a));
+  const tooltipText = entries.length
+    ? entries.map(([lvl, cnt]) => { const p = _porretesData.find(x => x.level === Number(lvl)); return p ? `${cnt}× Nível ${lvl} - ${p.name}` : ''; }).filter(Boolean).join('\n')
+    : 'Nenhum item necessário';
+  let tokensNeeded = null, coinsNeeded = null;
+  if (saved.tokensBase != null) tokensNeeded = entries.reduce((s, [lvl, cnt]) => { const p = _porretesData.find(x => x.level === Number(lvl)); return s + (p ? cnt * saved.tokensBase * p.level1Equivalents : 0); }, 0);
+  if (saved.coinsBase  != null) coinsNeeded  = entries.reduce((s, [lvl, cnt]) => { const p = _porretesData.find(x => x.level === Number(lvl)); return s + (p ? cnt * saved.coinsBase  * p.level1Equivalents : 0); }, 0);
+  el.innerHTML = `<div class="pnc-wrap">
+    <div class="pnc-item">
+      <span class="pnc-label">Próximo Nível</span>
+      <span class="pnc-value">${mcImg(target.icon)}<strong>${target.level} - ${target.name}</strong></span>
+    </div>
+    <div class="pnc-sep"></div>
+    <div class="pnc-item">
+      <span class="pnc-label">Ainda Faltam <span class="pnc-info-btn" data-tooltip="${escAttr(tooltipText)}">i</span></span>
+      <span class="pnc-amounts">
+        <span class="pnc-amt"><span class="pnc-amt-label">Tokens</span><span class="token-val">${tokensNeeded != null ? fmtBig(tokensNeeded) : '—'}</span></span>
+        <span class="pnc-amt"><span class="pnc-amt-label">Coins</span><span class="green-val">${coinsNeeded != null ? fmtBig(coinsNeeded) : '—'}</span></span>
+      </span>
+    </div>
+  </div>`;
+}
+
+function prUpdateRow(level, saved) {
   const wrap = document.getElementById('porretes-table-wrap');
+  if (!wrap) return;
+  const p = _porretesData.find(x => x.level === level);
+  if (!p) return;
+  const q    = (saved.qty || {})[level] || 0;
+  const tokV = saved.tokensBase != null ? saved.tokensBase * p.level1Equivalents : null;
+  const coiV = saved.coinsBase  != null ? saved.coinsBase  * p.level1Equivalents : null;
+  const totT = tokV != null ? tokV * q : null;
+  const totC = coiV != null ? coiV * q : null;
+  const row  = wrap.querySelector(`.pr-qty-input[data-level="${level}"]`)?.closest('tr');
+  if (!row) return;
+  row.querySelector('[data-pr-tot-t]').textContent = totT != null ? fmtBig(totT) : '—';
+  row.querySelector('[data-pr-tot-c]').textContent = totC != null ? fmtBig(totC) : '—';
+}
+
+function prUpdateFooter(saved) {
+  const qty = saved.qty || {};
+  let tT = 0, tC = 0, hT = false, hC = false;
+  for (const p of _porretesData) {
+    const q = qty[p.level] || 0;
+    if (saved.tokensBase != null && q > 0) { tT += saved.tokensBase * p.level1Equivalents * q; hT = true; }
+    if (saved.coinsBase  != null && q > 0) { tC += saved.coinsBase  * p.level1Equivalents * q; hC = true; }
+  }
+  const fT = document.getElementById('pr-footer-t');
+  const fC = document.getElementById('pr-footer-c');
+  if (fT) fT.textContent = hT ? fmtBig(tT) : '—';
+  if (fC) fC.textContent = hC ? fmtBig(tC) : '—';
+}
+
+function renderPorretes(data) {
+  _porretesData = data;
+  const wrap  = document.getElementById('porretes-table-wrap');
+  const saved = prLoad();
+  const qty   = saved.qty || {};
 
   let html = `<div class="brainrots-card"><div class="table-scroll"><table class="porretes-table"><thead><tr>
     <th>Item</th>
     <th>Mob ♥ HP ⚔ Hits</th>
     <th class="num">Dano</th>
     <th class="num">Equiv. Nível 1</th>
+    <th class="num">Qtd</th>
+    <th class="num">Tokens / 1</th>
+    <th class="num">Coins / 1</th>
+    <th class="num">Total T</th>
+    <th class="num">Total C</th>
   </tr></thead><tbody>`;
 
+  let tT = 0, tC = 0, hT = false, hC = false;
   for (const p of data) {
+    const q    = qty[p.level] || 0;
+    const tokV = saved.tokensBase != null ? saved.tokensBase * p.level1Equivalents : null;
+    const coiV = saved.coinsBase  != null ? saved.coinsBase  * p.level1Equivalents : null;
+    const totT = tokV != null ? tokV * q : null;
+    const totC = coiV != null ? coiV * q : null;
+    if (totT != null && q > 0) { tT += totT; hT = true; }
+    if (totC != null && q > 0) { tC += totC; hC = true; }
     html += `<tr>
       <td class="td-name">${mcImg(p.icon)}<span class="brainrot-name">${p.level} - ${p.name}</span></td>
-      <td>${p.mob
-        ? `${p.mob}${p.hp != null ? ` <span class="hp-tag">♥ ${p.hp}</span>` : ''}${p.hp != null && p.damage != null ? ` <span class="hits-tag">⚔ ${Math.ceil(p.hp / p.damage)} Hits</span>` : ''}`
-        : '—'}</td>
+      <td>${p.mob ? `${p.mob}${p.hp != null ? ` <span class="hp-tag">♥ ${p.hp}</span>` : ''}${p.hp != null && p.damage != null ? ` <span class="hits-tag">⚔ ${Math.ceil(p.hp / p.damage)} Hits</span>` : ''}` : '—'}</td>
       <td class="num">${p.damage ?? '—'}</td>
       <td class="num">${fmtFull(p.level1Equivalents)}</td>
+      <td class="num"><input type="number" class="qty-input pr-qty-input" data-level="${p.level}" value="${q}" min="0"></td>
+      <td class="num"><input type="text" class="ch-val-input pr-tok-input" data-level="${p.level}" value="${tokV != null ? fmtBig(tokV) : ''}" placeholder="—"></td>
+      <td class="num"><input type="text" class="ch-val-input pr-coi-input" data-level="${p.level}" value="${coiV != null ? fmtBig(coiV) : ''}" placeholder="—"></td>
+      <td class="num token-val" data-pr-tot-t>${totT != null ? fmtBig(totT) : '—'}</td>
+      <td class="num green-val"  data-pr-tot-c>${totC != null ? fmtBig(totC) : '—'}</td>
     </tr>`;
   }
 
-  html += '</tbody></table></div></div>';
+  html += `</tbody><tfoot><tr class="chaves-total-row">
+    <td colspan="7" style="color:#666;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.04em;padding:10px 16px">Total Geral</td>
+    <td class="num token-val" id="pr-footer-t">${hT ? fmtBig(tT) : '—'}</td>
+    <td class="num green-val"  id="pr-footer-c">${hC ? fmtBig(tC) : '—'}</td>
+  </tr></tfoot></table></div></div>`;
+
   wrap.innerHTML = html;
+  renderPorretesCard();
+
+  wrap.querySelectorAll('.pr-qty-input').forEach(inp => {
+    inp.addEventListener('change', () => {
+      const lvl = parseInt(inp.dataset.level);
+      const val = parseInt(inp.value);
+      if (isNaN(val) || val < 0) return;
+      const s = prLoad();
+      if (!s.qty) s.qty = {};
+      s.qty[lvl] = val;
+      prSave(s);
+      prUpdateRow(lvl, s);
+      prUpdateFooter(s);
+      renderPorretesCard();
+    });
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') inp.blur(); });
+  });
+
+  wrap.querySelectorAll('.pr-tok-input').forEach(inp => {
+    inp.addEventListener('input', () => {
+      const lvl = parseInt(inp.dataset.level);
+      const p   = _porretesData.find(x => x.level === lvl);
+      if (!p) return;
+      const val = parseNotation(inp.value);
+      const s   = prLoad();
+      s.tokensBase = val > 0 ? val / p.level1Equivalents : null;
+      prSave(s);
+      for (const pd of _porretesData) {
+        if (pd.level === lvl) continue;
+        const el = wrap.querySelector(`.pr-tok-input[data-level="${pd.level}"]`);
+        if (el) el.value = s.tokensBase != null ? fmtBig(s.tokensBase * pd.level1Equivalents) : '';
+        prUpdateRow(pd.level, s);
+      }
+      prUpdateRow(lvl, s);
+      prUpdateFooter(s);
+      renderPorretesCard();
+      renderChavesTable();
+    });
+  });
+
+  wrap.querySelectorAll('.pr-coi-input').forEach(inp => {
+    inp.addEventListener('input', () => {
+      const lvl = parseInt(inp.dataset.level);
+      const p   = _porretesData.find(x => x.level === lvl);
+      if (!p) return;
+      const val = parseNotation(inp.value);
+      const s   = prLoad();
+      s.coinsBase = val > 0 ? val / p.level1Equivalents : null;
+      prSave(s);
+      for (const pd of _porretesData) {
+        if (pd.level === lvl) continue;
+        const el = wrap.querySelector(`.pr-coi-input[data-level="${pd.level}"]`);
+        if (el) el.value = s.coinsBase != null ? fmtBig(s.coinsBase * pd.level1Equivalents) : '';
+        prUpdateRow(pd.level, s);
+      }
+      prUpdateRow(lvl, s);
+      prUpdateFooter(s);
+      renderPorretesCard();
+      renderChavesTable();
+    });
+  });
 }
 
 function switchView(view) {
@@ -715,9 +925,11 @@ function renderTridentes() {
 }
 
 function computeAllKeyEVs() {
-  const keyNames     = new Set(_chavesData.map(k => k.name));
-  const tridentNames = new Set(TRIDENTES);
-  const trData       = trLoad();
+  const keyNames      = new Set(_chavesData.map(k => k.name));
+  const tridentNames  = new Set(TRIDENTES);
+  const porretesNames = new Set(_porretesData.map(p => p.name));
+  const trData = trLoad();
+  const prData = prLoad();
   const evs = {};
   for (const key of _chavesData) evs[key.name] = { veT: 0, veC: 0 };
 
@@ -737,6 +949,12 @@ function computeAllKeyEVs() {
           const tr = trData[item.name] || {};
           if (tr.tokensP1) veT += prob * qty * parseNotation(tr.tokensP1);
           if (tr.coinsP1)  veC += prob * qty * parseNotation(tr.coinsP1);
+        } else if (porretesNames.has(item.name)) {
+          const pd = _porretesData.find(p => p.name === item.name);
+          if (pd) {
+            if (prData.tokensBase != null) veT += prob * qty * prData.tokensBase * pd.level1Equivalents;
+            if (prData.coinsBase  != null) veC += prob * qty * prData.coinsBase  * pd.level1Equivalents;
+          }
         } else {
           const s = (saved.items || {})[item.name] || {};
           if (s.valorT != null && s.valorT !== '') veT += prob * qty * parseNotation(s.valorT);
@@ -840,10 +1058,12 @@ function renderChavesTable() {
 
 function openChavesModal(key) {
   if (!key) return;
-  const modal        = document.getElementById('chaves-modal');
-  const keyNames     = new Set(_chavesData.map(k => k.name));
-  const tridentNames = new Set(TRIDENTES);
-  const trData       = trLoad();
+  const modal         = document.getElementById('chaves-modal');
+  const keyNames      = new Set(_chavesData.map(k => k.name));
+  const tridentNames  = new Set(TRIDENTES);
+  const porretesNames = new Set(_porretesData.map(p => p.name));
+  const trData = trLoad();
+  const prData = prLoad();
   document.getElementById('chaves-modal-title').textContent = key.name;
 
   const tbody  = document.getElementById('chaves-items-tbody');
@@ -854,11 +1074,12 @@ function openChavesModal(key) {
 
   let html = '';
   key.items.forEach((item, i) => {
-    const prob      = probs[i];
-    const qty       = parseNotation(item.qty);
-    const isKey     = keyNames.has(item.name);
-    const isTrident = tridentNames.has(item.name);
-    const oddTd     = `${item.odd}%`;
+    const prob       = probs[i];
+    const qty        = parseNotation(item.qty);
+    const isKey      = keyNames.has(item.name);
+    const isTrident  = tridentNames.has(item.name);
+    const isPorrete  = porretesNames.has(item.name);
+    const oddTd      = `${item.odd}%`;
 
     let valorTd, valorCd, veT, veC;
     if (isKey) {
@@ -871,6 +1092,14 @@ function openChavesModal(key) {
       const tr  = trData[item.name] || {};
       const tP1 = parseNotation(tr.tokensP1);
       const cP1 = parseNotation(tr.coinsP1);
+      valorTd = `<span class="ch-key-val" data-valor-t>${tP1 > 0 ? fmtBig(tP1) : '—'}</span>`;
+      valorCd = `<span class="ch-key-val" data-valor-c>${cP1 > 0 ? fmtBig(cP1) : '—'}</span>`;
+      veT     = tP1 > 0 ? fmtBig(prob * qty * tP1) : '—';
+      veC     = cP1 > 0 ? fmtBig(prob * qty * cP1) : '—';
+    } else if (isPorrete) {
+      const pd  = _porretesData.find(p => p.name === item.name);
+      const tP1 = pd && prData.tokensBase != null ? prData.tokensBase * pd.level1Equivalents : 0;
+      const cP1 = pd && prData.coinsBase  != null ? prData.coinsBase  * pd.level1Equivalents : 0;
       valorTd = `<span class="ch-key-val" data-valor-t>${tP1 > 0 ? fmtBig(tP1) : '—'}</span>`;
       valorCd = `<span class="ch-key-val" data-valor-c>${cP1 > 0 ? fmtBig(cP1) : '—'}</span>`;
       veT     = tP1 > 0 ? fmtBig(prob * qty * tP1) : '—';
@@ -920,13 +1149,15 @@ function openChavesModal(key) {
 }
 
 function updateModalVEs(key, allEvs) {
-  const tbody        = document.getElementById('chaves-items-tbody');
+  const tbody         = document.getElementById('chaves-items-tbody');
   if (!tbody) return;
-  const keyNames     = new Set(_chavesData.map(k => k.name));
-  const tridentNames = new Set(TRIDENTES);
-  const trData       = trLoad();
-  const probs        = calcProbs(key.items);
-  const saved        = _chSaved[key.name] || {};
+  const keyNames      = new Set(_chavesData.map(k => k.name));
+  const tridentNames  = new Set(TRIDENTES);
+  const porretesNames = new Set(_porretesData.map(p => p.name));
+  const trData = trLoad();
+  const prData = prLoad();
+  const probs  = calcProbs(key.items);
+  const saved  = _chSaved[key.name] || {};
 
   key.items.forEach((item, i) => {
     const row = tbody.querySelector(`tr[data-idx="${i}"]`);
@@ -944,6 +1175,14 @@ function updateModalVEs(key, allEvs) {
       const tr  = trData[item.name] || {};
       const tP1 = parseNotation(tr.tokensP1);
       const cP1 = parseNotation(tr.coinsP1);
+      row.querySelector('[data-valor-t]').textContent = tP1 > 0 ? fmtBig(tP1) : '—';
+      row.querySelector('[data-valor-c]').textContent = cP1 > 0 ? fmtBig(cP1) : '—';
+      row.querySelector('[data-ve-t]').textContent    = tP1 > 0 ? fmtBig(prob * qty * tP1) : '—';
+      row.querySelector('[data-ve-c]').textContent    = cP1 > 0 ? fmtBig(prob * qty * cP1) : '—';
+    } else if (porretesNames.has(item.name)) {
+      const pd  = _porretesData.find(p => p.name === item.name);
+      const tP1 = pd && prData.tokensBase != null ? prData.tokensBase * pd.level1Equivalents : 0;
+      const cP1 = pd && prData.coinsBase  != null ? prData.coinsBase  * pd.level1Equivalents : 0;
       row.querySelector('[data-valor-t]').textContent = tP1 > 0 ? fmtBig(tP1) : '—';
       row.querySelector('[data-valor-c]').textContent = cP1 > 0 ? fmtBig(cP1) : '—';
       row.querySelector('[data-ve-t]').textContent    = tP1 > 0 ? fmtBig(prob * qty * tP1) : '—';

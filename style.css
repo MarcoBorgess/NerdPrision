@@ -127,7 +127,7 @@ tbody tr:hover td { background: #1a1a26; }
 /* ── Brainrot table: fixed layout for column alignment ── */
 .brainrot-table  { table-layout: fixed; min-width: 520px; }
 .rebirths-table  { min-width: 680px; }
-.porretes-table  { min-width: 420px; }
+.porretes-table  { min-width: 920px; }
 
 .brainrot-table .col-name   { width: 38%; }
 .brainrot-table .col-rarity { width: 13%; }
@@ -335,7 +335,7 @@ td.brainrots-needed {
   .brainrot-table .col-buy    { width: auto; min-width: 70px; }
   .brainrot-table .col-be     { width: auto; min-width: 110px; }
   .rebirths-table  { min-width: 680px; }
-  .porretes-table  { min-width: 420px; }
+  .porretes-table  { min-width: 920px; }
 
 }
 
@@ -941,3 +941,126 @@ tfoot .pesca-total-row td {
 }
 
 .pesca-shop-card-cost { font-size: 0.82rem; color: #666; }
+
+/* ── Porretes card ── */
+.pnc-wrap {
+  background: #16161e;
+  border: 1px solid #2a2a3a;
+  border-radius: 14px;
+  padding: 14px 20px;
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+  flex-wrap: wrap;
+  row-gap: 12px;
+}
+
+.pnc-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+  padding: 0 20px;
+}
+.pnc-item:first-child { padding-left: 4px; }
+
+.pnc-label {
+  font-size: 0.72rem;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 1;
+  padding-bottom: 6px;
+}
+
+.pnc-value {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #fff;
+  font-size: 0.95rem;
+}
+
+.pnc-amounts {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.pnc-amt {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pnc-amt-label {
+  font-size: 0.68rem;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.pnc-amt .token-val,
+.pnc-amt .green-val {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.pnc-sep {
+  width: 1px;
+  align-self: stretch;
+  background: #2a2a3a;
+  flex-shrink: 0;
+}
+
+/* Tooltip "i" button */
+.pnc-info-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #1e1e2e;
+  border: 1px solid #2a2a3a;
+  color: #666;
+  font-size: 0.65rem;
+  font-style: italic;
+  cursor: default;
+  position: relative;
+  flex-shrink: 0;
+  user-select: none;
+}
+.pnc-info-btn:hover { border-color: #555; color: #aaa; }
+
+.pnc-info-btn::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1e1e2e;
+  border: 1px solid #2a2a3a;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  color: #e0e0e0;
+  white-space: pre;
+  min-width: 220px;
+  font-style: normal;
+  font-weight: normal;
+  display: none;
+  z-index: 50;
+  text-align: left;
+  line-height: 1.7;
+  pointer-events: none;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+}
+.pnc-info-btn:hover::after { display: block; }

@@ -21,17 +21,21 @@
       <img src="assets/items/netherite_sword.png" alt="" class="mc-icon">
       <span>Porretes</span>
     </button>
+    <button class="nav-btn" data-view="pesca">
+      <img src="assets/items/fishing_rod.png" alt="" class="mc-icon">
+      <span>Pesca</span>
+    </button>
+    <button class="nav-btn" data-view="tridentes">
+      <img src="assets/items/trident.png" alt="" class="mc-icon">
+      <span>Tridentes</span>
+    </button>
+    <button class="nav-btn" data-view="chaves">
+      <img src="assets/items/pink_petals.png" alt="" class="mc-icon">
+      <span>Chaves</span>
+    </button>
     <button class="nav-btn" data-view="meus-brainrots">
       <img src="assets/computer.webp" alt="" class="mc-icon">
       <span>Meus Brainrots</span>
-    </button>
-    <button class="nav-btn" data-view="chaves">
-      <img src="assets/vault.webp" alt="" class="mc-icon">
-      <span>Chaves/Tridentes</span>
-    </button>
-    <button class="nav-btn" data-view="pesca">
-      <img src="assets/fish.webp" alt="" class="mc-icon">
-      <span>Pesca</span>
     </button>
     <button class="nav-btn" id="tip-btn">
       <img src="assets/burger.webp" alt="" class="mc-icon">
@@ -55,6 +59,7 @@
 
     <section id="view-porretes" class="view">
       <header><h1>Porretes</h1></header>
+      <div id="porretes-card-wrap"></div>
       <div id="porretes-table-wrap"></div>
     </section>
 
@@ -96,9 +101,36 @@
       </div>
     </section>
 
+    <section id="view-tridentes" class="view">
+      <header><h1>Tridentes</h1></header>
+      <div class="brainrots-card">
+        <div class="table-scroll">
+          <table class="tridentes-table">
+            <colgroup>
+              <col class="col-name">
+              <col class="col-qty">
+              <col><col><col><col>
+            </colgroup>
+            <thead>
+              <tr>
+                <th>Tridente</th>
+                <th class="num">Qtd</th>
+                <th class="num">Tokens / 1</th>
+                <th class="num">Coins / 1</th>
+                <th class="num">Total T</th>
+                <th class="num">Total C</th>
+              </tr>
+            </thead>
+            <tbody id="tridentes-tbody"></tbody>
+            <tfoot id="tridentes-tfoot"></tfoot>
+          </table>
+        </div>
+      </div>
+    </section>
+
     <section id="view-chaves" class="view">
       <header class="ch-header">
-        <h1>Chaves e Tridentes</h1>
+        <h1>Chaves</h1>
         <button class="ch-info-btn" id="chaves-info-btn">i</button>
       </header>
       <div class="brainrots-card">
@@ -122,30 +154,6 @@
             </thead>
             <tbody id="chaves-tbody"></tbody>
             <tfoot id="chaves-tfoot"></tfoot>
-          </table>
-        </div>
-      </div>
-      <h2 style="margin-top:28px">Tridentes</h2>
-      <div class="brainrots-card">
-        <div class="table-scroll">
-          <table class="tridentes-table">
-            <colgroup>
-              <col class="col-name">
-              <col class="col-qty">
-              <col><col><col><col>
-            </colgroup>
-            <thead>
-              <tr>
-                <th>Tridente</th>
-                <th class="num">Qtd</th>
-                <th class="num">Tokens / 1</th>
-                <th class="num">Coins / 1</th>
-                <th class="num">Total T</th>
-                <th class="num">Total C</th>
-              </tr>
-            </thead>
-            <tbody id="tridentes-tbody"></tbody>
-            <tfoot id="tridentes-tfoot"></tfoot>
           </table>
         </div>
       </div>
