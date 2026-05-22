@@ -156,8 +156,8 @@
     "level": 18,
     "name": "Demolidora do Colosso Sombrio",
     "icon": "netherite_pickaxe",
-    "mob": "???",
-    "hp": 0,
+    "mob": "Brutamontes Infernal",
+    "hp": 2300,
     "damage": 310,
     "level1Equivalents": 129140163
   }
