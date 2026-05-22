@@ -95,10 +95,113 @@
           </table>
         </div>
       </div>
-      <div class="add-form">
-        <select id="mb-add-select"></select>
-        <button class="btn-save-rank" id="mb-add-btn">Adicionar</button>
+      <div class="mb-add-row">
+        <div class="mb-add-dropdown" id="mb-add-dropdown">
+          <div class="mb-add-trigger" id="mb-add-trigger">
+            <span class="mb-add-face" id="mb-add-face"></span>
+            <span class="mb-add-text" id="mb-add-text">Adicionar brainrot...</span>
+            <span class="mb-add-caret">▾</span>
+          </div>
+          <div class="mb-add-opts hidden" id="mb-add-opts"></div>
+        </div>
       </div>
+
+      <h2>Calculadora de Compra</h2>
+      <div class="cc-grid">
+
+        <div class="cc-card cc-result" id="cc-result">
+          <div class="cc-result-head">
+            <div class="cc-mob-dropdown" id="cc-mob-dropdown">
+              <div class="cc-mob-trigger" id="cc-mob-trigger">
+                <span class="cc-mob-trigger-face" id="cc-mob-trigger-face"></span>
+                <span class="cc-mob-trigger-text" id="cc-mob-trigger-text">Selecione um brainrot...</span>
+                <span class="cc-mob-caret">▾</span>
+              </div>
+              <div class="cc-mob-opts hidden" id="cc-mob-opts"></div>
+            </div>
+          </div>
+          <div class="cc-result-rows" id="cc-result-rows">
+            <div class="cc-result-item">
+              <div class="cc-result-label">AFK / dia</div>
+              <div class="cc-result-val" id="cc-r-afk">—</div>
+            </div>
+            <div class="cc-result-item">
+              <div class="cc-result-label">Mundo / dia</div>
+              <div class="cc-result-val" id="cc-r-mundo">—</div>
+            </div>
+            <div class="cc-result-item">
+              <div class="cc-result-label">Evento / dia</div>
+              <div class="cc-result-val" id="cc-r-evento">—</div>
+            </div>
+            <div class="cc-result-item cc-result-total">
+              <div class="cc-result-label">Total / dia</div>
+              <div class="cc-result-val" id="cc-r-total">—</div>
+            </div>
+            <div class="cc-result-item cc-result-be">
+              <div class="cc-result-label">Break-Even</div>
+              <div class="cc-result-val" id="cc-r-be">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="cc-card">
+          <div class="cc-card-title">1. Configurações</div>
+          <div class="cc-cfg-body">
+            <span class="cc-label">VIP</span>
+            <select id="cc-vip" class="cc-sel-input">
+              <option value="none">Sem VIP</option>
+              <option value="ouro">VIP Ouro</option>
+              <option value="diamante">VIP Diamante</option>
+              <option value="obsidian">VIP Obsidian</option>
+              <option value="esmeralda">VIP Esmeralda</option>
+            </select>
+            <div class="cc-vip-hints">
+              <span id="cc-vip-buff"></span>
+              <span id="cc-vip-debuff"></span>
+            </div>
+
+            <span class="cc-label">Rebirth</span>
+            <input type="number" id="cc-rebirth" class="cc-sel-input" min="0" step="1" value="0">
+            <span id="cc-rebirth-multi" class="cc-rb-multi"></span>
+
+            <span class="cc-label">Booster</span>
+            <input type="number" id="cc-booster" class="cc-sel-input" min="1" step="0.01">
+            <span class="cc-unit">x</span>
+
+            <span class="cc-label">Custo</span>
+            <input type="text" id="cc-cost" class="cc-sel-input cc-cost-input" placeholder="0">
+            <span class="cc-unit">Coins</span>
+          </div>
+        </div>
+
+        <div class="cc-card cc-card-gen">
+          <div class="cc-card-title">2. Geração Diária</div>
+          <div class="cc-hours-row">
+            <span class="cc-label">AFK</span>
+            <input type="number" id="cc-afk-h" class="cc-num-input" min="0" max="24" value="20">
+            <span class="cc-unit">horas</span>
+          </div>
+          <div class="cc-hours-row">
+            <span class="cc-label">Mundo</span>
+            <input type="number" id="cc-mundo-h" class="cc-num-input" min="0" max="24" value="4">
+            <span class="cc-unit">horas</span>
+          </div>
+          <div class="cc-sub-title">Eventos</div>
+          <div class="cc-hours-row">
+            <span class="cc-label">Quantidade</span>
+            <input type="number" id="cc-eventos" class="cc-num-input" min="0" max="24" value="2">
+            <span class="cc-unit">/ dia</span>
+          </div>
+          <div class="cc-hours-row">
+            <span class="cc-label">Multiplicador</span>
+            <input type="number" id="cc-evento-multi" class="cc-num-input" min="1" step="0.01">
+            <span class="cc-unit">x</span>
+          </div>
+        </div>
+
+
+      </div>
+
     </section>
 
     <section id="view-tridentes" class="view">

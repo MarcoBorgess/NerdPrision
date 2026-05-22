@@ -696,23 +696,61 @@ function mbRenderTable() {
   });
 }
 
-function mbRenderAddSelect() {
-  const sel = document.getElementById('mb-add-select');
-  const coins = _mbBrainrots.filter(b => b.currency !== 'rubi');
-  const rubis = _mbBrainrots.filter(b => b.currency === 'rubi');
+function mbInitAddDropdown() {
+  const trigger  = document.getElementById('mb-add-trigger');
+  const face     = document.getElementById('mb-add-face');
+  const text     = document.getElementById('mb-add-text');
+  const opts     = document.getElementById('mb-add-opts');
   const rarities = ['Mítico', 'Lendário', 'Raro', 'Incomum', 'Comum'];
+  const coinBrainrots = _mbBrainrots.filter(b => b.currency !== 'rubi');
+  const rubisBrainrots = _mbBrainrots.filter(b => b.currency === 'rubi');
 
-  const makeGroups = (list, prefix) => rarities.map(rarity => {
-    const group = list
-      .filter(b => b.rarity === rarity)
-      .sort((a, b) => (b.valuePerSec || 0) - (a.valuePerSec || 0));
-    if (group.length === 0) return '';
-    return `<optgroup label="${prefix}${rarity}">${
-      group.map(b => `<option value="${b.name}">${b.name} (${b.mob})</option>`).join('')
-    }</optgroup>`;
-  }).join('');
+  function buildGroup(list, prefix) {
+    let html = '';
+    for (const rarity of rarities) {
+      const group = list.filter(b => b.rarity === rarity)
+        .sort((a, b) => (b.valuePerSec || 0) - (a.valuePerSec || 0));
+      if (!group.length) continue;
+      const color = RARITY_COLORS[rarity] || '#aaa';
+      html += `<div class="mb-add-opt-group" style="color:${color}">${prefix}${rarity}</div>`;
+      for (const b of group) {
+        html += `<div class="mb-add-opt" data-name="${escAttr(b.name)}">${mobFace(b.icon)}<span>${b.name}</span></div>`;
+      }
+    }
+    return html;
+  }
 
-  sel.innerHTML = makeGroups(coins, '') + makeGroups(rubis, 'Rubi — ');
+  opts.innerHTML = buildGroup(coinBrainrots, '') + buildGroup(rubisBrainrots, 'Rubi — ');
+
+  function reset() {
+    face.innerHTML = '';
+    text.textContent = 'Adicionar brainrot...';
+    text.classList.remove('has-mob');
+    opts.classList.add('hidden');
+    trigger.classList.remove('open');
+  }
+
+  function openOpts()  { opts.classList.remove('hidden'); trigger.classList.add('open'); }
+  function closeOpts() { opts.classList.add('hidden');    trigger.classList.remove('open'); }
+
+  trigger.addEventListener('click', () => opts.classList.contains('hidden') ? openOpts() : closeOpts());
+
+  opts.addEventListener('click', e => {
+    const opt = e.target.closest('.mb-add-opt');
+    if (!opt) return;
+    const name = opt.dataset.name;
+    const existing = _mbLoadout.find(e => e.name === name);
+    if (existing) { existing.qty += 1; }
+    else { _mbLoadout.push({ name, qty: 1 }); }
+    mbSave(MB_LS.LOADOUT, _mbLoadout);
+    mbRenderTable();
+    mbRenderCards();
+    reset();
+  });
+
+  document.addEventListener('click', e => {
+    if (!document.getElementById('mb-add-dropdown').contains(e.target)) closeOpts();
+  });
 }
 
 function initMeusbrainrots(brainrots, rebirths) {
@@ -724,22 +762,7 @@ function initMeusbrainrots(brainrots, rebirths) {
 
   mbRenderCards();
   mbRenderTable();
-  mbRenderAddSelect();
-
-  // Add button
-  document.getElementById('mb-add-btn').addEventListener('click', () => {
-    const name = document.getElementById('mb-add-select').value;
-    if (!name) return;
-    const existing = _mbLoadout.find(e => e.name === name);
-    if (existing) {
-      existing.qty += 1;
-    } else {
-      _mbLoadout.push({ name, qty: 1 });
-    }
-    mbSave(MB_LS.LOADOUT, _mbLoadout);
-    mbRenderTable();
-    mbRenderCards();
-  });
+  mbInitAddDropdown();
 
   // Config modal
   const modal = document.getElementById('mb-modal');
@@ -770,6 +793,227 @@ function initMeusbrainrots(brainrots, rebirths) {
     mbRenderTable();
   });
 
+  initCalcCompra();
+}
+
+// ── Calculadora de Compra ────────────────────────────────────────────────────
+
+function initCalcCompra() {
+  const vipSel      = document.getElementById('cc-vip');
+  const rebirthSel  = document.getElementById('cc-rebirth');
+  const boosterInp  = document.getElementById('cc-booster');
+  const costInp     = document.getElementById('cc-cost');
+  const afkInp      = document.getElementById('cc-afk-h');
+  const mundoInp    = document.getElementById('cc-mundo-h');
+  const eventosInp  = document.getElementById('cc-eventos');
+  const evMultiInp  = document.getElementById('cc-evento-multi');
+  const result      = document.getElementById('cc-result-rows');
+  const vipBuffEl   = document.getElementById('cc-vip-buff');
+  const vipDebuffEl = document.getElementById('cc-vip-debuff');
+  const trigger     = document.getElementById('cc-mob-trigger');
+  const triggerFace = document.getElementById('cc-mob-trigger-face');
+  const triggerText = document.getElementById('cc-mob-trigger-text');
+  const optsPanel   = document.getElementById('cc-mob-opts');
+  let   _ccMob      = '';
+
+  // Set rebirth input bounds
+  const maxRebirth = _mbRebirths.length > 0 ? _mbRebirths[_mbRebirths.length - 1].level : 25;
+  rebirthSel.max = maxRebirth;
+
+  function addSpinner(input) {
+    const wrap = document.createElement('div');
+    wrap.className = 'cc-spin-wrap';
+    input.parentNode.insertBefore(wrap, input);
+    const btns = document.createElement('div');
+    btns.className = 'cc-spin-btns';
+    const up = document.createElement('button');
+    const dn = document.createElement('button');
+    up.type = dn.type = 'button';
+    up.className = dn.className = 'cc-spin-btn';
+    up.tabIndex = dn.tabIndex = -1;
+    up.textContent = '▲';
+    dn.textContent = '▼';
+    btns.appendChild(up);
+    btns.appendChild(dn);
+    wrap.appendChild(btns);
+    wrap.appendChild(input);
+    input.addEventListener('click', () => input.select());
+    up.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      input.stepUp();
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    dn.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      input.stepDown();
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+  }
+
+  [rebirthSel, boosterInp, afkInp, mundoInp, eventosInp, evMultiInp].forEach(addSpinner);
+
+  // Build custom mob dropdown — coins only, grouped by rarity descending
+  const coinBrainrots = _mbBrainrots.filter(b => b.currency !== 'rubi');
+  const rarities = ['Mítico', 'Lendário', 'Raro', 'Incomum', 'Comum'];
+  const RARITY_COLORS_CC = { 'Mítico':'#FF55FF','Lendário':'#FFAA00','Raro':'#5555FF','Incomum':'#55FF55','Comum':'#AAAAAA' };
+  let optsHtml = '';
+  for (const rarity of rarities) {
+    const group = coinBrainrots
+      .filter(b => b.rarity === rarity)
+      .sort((a, b) => (b.valuePerSec || 0) - (a.valuePerSec || 0));
+    if (!group.length) continue;
+    const color = RARITY_COLORS_CC[rarity] || '#aaa';
+    optsHtml += `<div class="cc-mob-opt-group" style="color:${color}">${rarity}</div>`;
+    for (const b of group) {
+      optsHtml += `<div class="cc-mob-opt" data-name="${escAttr(b.name)}">${mobFace(b.icon)}<span>${b.name}</span></div>`;
+    }
+  }
+  optsPanel.innerHTML = optsHtml;
+
+  function selectMob(name) {
+    _ccMob = name;
+    optsPanel.querySelectorAll('.cc-mob-opt').forEach(el => el.classList.toggle('selected', el.dataset.name === name));
+    if (!name) {
+      triggerFace.innerHTML = '';
+      triggerText.textContent = 'Selecione um brainrot...';
+      triggerText.classList.remove('selected');
+    } else {
+      const b = _mbBrainrots.find(b => b.name === name);
+      if (b) {
+        triggerFace.innerHTML = mobFace(b.icon);
+        triggerText.textContent = b.name;
+        triggerText.classList.add('selected');
+        costInp.value = fmt(b.buyValue);
+      }
+    }
+    closeOpts();
+    recalc();
+  }
+
+  function openOpts()  { optsPanel.classList.remove('hidden'); trigger.classList.add('open'); }
+  function closeOpts() { optsPanel.classList.add('hidden');    trigger.classList.remove('open'); }
+
+  trigger.addEventListener('click', () => optsPanel.classList.contains('hidden') ? openOpts() : closeOpts());
+  optsPanel.addEventListener('click', e => {
+    const opt = e.target.closest('.cc-mob-opt');
+    if (opt) selectMob(opt.dataset.name);
+  });
+  document.addEventListener('click', e => {
+    if (!document.getElementById('cc-mob-dropdown').contains(e.target)) closeOpts();
+  });
+
+  // Defaults from current _mbConfig / _mbLevel
+  vipSel.value      = _mbConfig.vip;
+  rebirthSel.value  = String(_mbLevel);
+  boosterInp.value  = _mbConfig.booster;
+  evMultiInp.value  = _mbConfig.eventMulti;
+
+  function getVip()   { return VIP_DATA[vipSel.value] || VIP_DATA.none; }
+  function getRbMulti() {
+    const lvl = parseInt(rebirthSel.value) || 0;
+    const r   = _mbRebirths.find(r => r.level === lvl) || null;
+    return r ? r.coinsMultiplier : 1;
+  }
+
+  function updateVipInfo() {
+    const vip       = getVip();
+    const bonusPct  = Math.round((vip.bonus - 1) * 100);
+    const debuffPct = Math.round((1 - vip.afkDebuff) * 100);
+    vipBuffEl.textContent   = `+${bonusPct}% Coins`;
+    vipDebuffEl.textContent = `−${debuffPct}% AFK`;
+  }
+
+  function updateRebirthInfo() {
+    const cm = getRbMulti();
+    document.getElementById('cc-rebirth-multi').textContent = `${cm}x Coins`;
+  }
+
+  function recalc() {
+    const name = _ccMob;
+    if (!name) {
+      ['cc-r-afk','cc-r-mundo','cc-r-evento','cc-r-total','cc-r-be'].forEach(id => {
+        document.getElementById(id).textContent = '—';
+      });
+      return;
+    }
+    const b = _mbBrainrots.find(b => b.name === name);
+    if (!b) return;
+
+    const cps      = b.valuePerSec || 0;
+    const vip      = getVip();
+    const cm       = getRbMulti();
+    const booster  = parseFloat(boosterInp.value) || 1;
+    const custo    = parseNotation(costInp.value);
+    const afkH     = parseInt(afkInp.value)    || 0;
+    const mundoH   = parseInt(mundoInp.value)   || 0;
+    const evN      = parseInt(eventosInp.value) || 0;
+    const evMulti  = parseFloat(evMultiInp.value) || 1;
+
+    const mundoEf    = Math.max(0, mundoH - evN);
+    const afkDaily   = cps * cm * vip.bonus * vip.afkDebuff * afkH   * 3600;
+    const mundoDaily = cps * cm * vip.bonus * booster        * mundoEf * 3600;
+    const evtDaily   = cps * cm * vip.bonus * booster * evMulti * evN * 3600;
+    const totalDaily = afkDaily + mundoDaily + evtDaily;
+
+    const beVal = totalDaily > 0 && custo > 0
+      ? fmtTime(custo / (totalDaily / 86400))
+      : '—';
+
+    document.getElementById('cc-r-afk').textContent    = fmt2(afkDaily);
+    document.getElementById('cc-r-mundo').textContent  = fmt2(mundoDaily);
+    document.getElementById('cc-r-evento').textContent = fmt2(evtDaily);
+    document.getElementById('cc-r-total').textContent  = fmt2(totalDaily);
+    document.getElementById('cc-r-be').textContent     = beVal;
+  }
+
+  // Hours linkage: afk + mundo = 24, eventos <= mundo
+  afkInp.addEventListener('input', () => {
+    const afk   = Math.max(0, Math.min(24, parseInt(afkInp.value) || 0));
+    const mundo = 24 - afk;
+    const ev    = Math.min(parseInt(eventosInp.value) || 0, mundo);
+    afkInp.value     = afk;
+    mundoInp.value   = mundo;
+    eventosInp.value = ev;
+    recalc();
+  });
+
+  mundoInp.addEventListener('input', () => {
+    const mundo = Math.max(0, Math.min(24, parseInt(mundoInp.value) || 0));
+    const afk   = 24 - mundo;
+    const ev    = Math.min(parseInt(eventosInp.value) || 0, mundo);
+    mundoInp.value   = mundo;
+    afkInp.value     = afk;
+    eventosInp.value = ev;
+    recalc();
+  });
+
+  eventosInp.addEventListener('input', () => {
+    let ev    = Math.max(0, parseInt(eventosInp.value) || 0);
+    let mundo = parseInt(mundoInp.value) || 0;
+    let afk   = parseInt(afkInp.value)   || 0;
+    if (ev > mundo) {
+      const borrow = Math.min(ev - mundo, afk);
+      mundo += borrow;
+      afk   -= borrow;
+      ev     = Math.min(ev, mundo);
+      mundoInp.value = mundo;
+      afkInp.value   = afk;
+    }
+    eventosInp.value = ev;
+    recalc();
+  });
+
+  vipSel.addEventListener('change', () => { updateVipInfo(); recalc(); });
+  rebirthSel.addEventListener('input', () => {
+    const raw = parseInt(rebirthSel.value);
+    if (!isNaN(raw)) rebirthSel.value = Math.max(0, Math.min(maxRebirth, raw));
+    updateRebirthInfo();
+    recalc();
+  });
+  [boosterInp, costInp, evMultiInp].forEach(el => el.addEventListener('input', recalc));
+
+  updateVipInfo();
+  updateRebirthInfo();
 }
 
 // ── Calculadora de Chaves ────────────────────────────────────────────────────
