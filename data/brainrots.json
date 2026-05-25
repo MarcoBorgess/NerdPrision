@@ -331,5 +331,14 @@
     "currency": "rubi",
     "valuePerSec": 45000,
     "buyValue": 30000000000
+  },
+  {
+    "name": "Titã Rubrion do Caos Carmesim",
+    "icon": "Piglin_face.png",
+    "mob": "Piglin Bárbaro",
+    "rarity": "Mítico",
+    "currency": "rubi",
+    "valuePerSec": 135000,
+    "buyValue": 100000000000
   }
 ]
